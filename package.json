@@ -31,7 +31,8 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "jsdom": "~0.8.8"
+    "jsdom": "~0.8.8",
+    "ejs":"*"
   },
   "devDependencies": {
     "matchdep": "~0.1.1",
