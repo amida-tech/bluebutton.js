@@ -1,6 +1,6 @@
 # BlueButton.js
 
-BlueButton.js is JavaScript library to help make working with healthcare data easier. [Try the demo.](http://blue-button.github.io/applications/tools/js/sandbox.html)
+BlueButton.js helps developers navigate complex health data with ease. [Try the demo.](http://www.bluebuttonjs.com/sandbox)
 
 **This project is under heavy development!** Until a v1 release, the public API will change, a lot.
 
@@ -63,7 +63,7 @@ Each section contains a convenience `json()` method.
 bb.demographics().json();
 
 // Returns a JSON representation of the entire document
-bb.document().json();
+bb.data.json();
 ```
 
 ## CommonJS and AMD support
@@ -127,3 +127,8 @@ require(['bluebutton', 'text!examples/xml/ccd.xml'], function (BlueButton, xml) 
 Run `grunt` to build the library. All builds are placed in the [`build/`](/build) directory.
 
 Be sure to version up `package.json`, `bower.json`, and add any changes to `History.md` before releasing.
+
+
+## Running the Test Suite
+
+Run `grunt test` to run the test suite, which is important to do after making any changes to the way data parses. Before you run the tests the first time, you will need to `bower install` to download the sample CCDA the tests expect to use (and `npm install -g bower` if you don't have bower yet). The actual tests live in the [`spec/`](/spec) directory.
