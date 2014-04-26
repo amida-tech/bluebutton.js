@@ -1,5 +1,5 @@
 module.exports = function(grunt) {
-  
+
   // Configurable paths
   var bbConfig = {
     build: "./build",
@@ -7,17 +7,17 @@ module.exports = function(grunt) {
     test: "./spec/javascripts",
     samples: "./sample_data"
   };
-  
+
   // Project configuration.
   grunt.initConfig({
     bb: bbConfig,
     pkg: grunt.file.readJSON("package.json"),
     banner: "/* BlueButton.js -- <%= pkg.version %> */\n\n",
-    
+
     clean: {
       build: ["<%= bb.build %>"]
     },
-    
+
     jshint: {
       options: {
         jshintrc: ".jshintrc"
@@ -29,7 +29,7 @@ module.exports = function(grunt) {
         src: ["<%= bb.build %>/{,*/}*.foo"]
       }
     },
-    
+
     concat: {
       all: {
         options: {
@@ -47,14 +47,14 @@ module.exports = function(grunt) {
         dest: "<%= bb.build %>/bluebutton.js"
       }
     },
-    
+
     umd: {
      all: {
        src: "<%= bb.build %>/bluebutton.js",
        objectToExport: "BlueButton"
      }
    },
-    
+
     uglify: {
       all: {
         options: {
@@ -64,7 +64,7 @@ module.exports = function(grunt) {
         dest: "<%= bb.build %>/bluebutton.min.js"
       }
     },
-    
+
     jasmine: {
       browser: {
         options: {
@@ -82,7 +82,7 @@ module.exports = function(grunt) {
         src: "<%= bb.build %>/bluebutton.js",
       }
     },
-    
+
     jasmine_node: {
       specNameMatcher: "_spec", // load only specs containing specNameMatcher
         projectRoot: "<%= bb.test %>/node_specs",
@@ -96,7 +96,7 @@ module.exports = function(grunt) {
           consolidate: true
         }
     },
-    
+
     watch: {
       all: {
         files: "<%= bb.src %>/**/*.js",
@@ -107,12 +107,12 @@ module.exports = function(grunt) {
       }
     }
   });
-  
+
   // Load all grunt tasks starting with "grunt-"
   require("matchdep").filterDev("grunt-contrib-*").forEach(grunt.loadNpmTasks);
   grunt.loadNpmTasks('grunt-jasmine-node');
   grunt.loadNpmTasks('grunt-umd');
-  
+
   // Define tasks
   grunt.registerTask("default", [
     "clean",
@@ -122,11 +122,15 @@ module.exports = function(grunt) {
     "jshint:afterconcat",
     "uglify"
   ]);
-  
+
   grunt.registerTask("test", [
     "default",
     "jasmine",
     "jasmine_node"
   ]);
-  
+
+  grunt.registerTask("test_node", [
+    "default",
+    "jasmine_node"
+  ]);
 };

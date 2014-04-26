@@ -18,19 +18,19 @@ describe('C32', function() {
    *
    * Here we modify the expected output for PhantomJS to fix the data for Node. */
   expectedOutput['labs'].forEach(function(lab) {
-    if (lab['date'] === '2000-03-23T07:00:00.000Z') {
-      lab['date'] = '2000-03-23T08:00:00.000Z';
+    if (lab['date'] === '2000-03-23T00:00:00.000Z') {
+      lab['date'] = '2000-03-23T00:00:00.000Z';
     }
     lab['results'].forEach(function(result) {
-      if (result['date'] === '2000-03-23T07:00:00.000Z') {
-        result['date'] = '2000-03-23T08:00:00.000Z';
+      if (result['date'] === '2000-03-23T00:00:00.000Z') {
+        result['date'] = '2000-03-23T00:00:00.000Z';
       }
     });
   });
 
   expectedOutput['medications'].forEach(function(med) {
-    if (med['date_range']['start'] === '2000-03-28T07:00:00.000Z') {
-      med['date_range']['start'] = '2000-03-28T08:00:00.000Z';
+    if (med['date_range']['start'] === '2000-03-28T00:00:00.000Z') {
+      med['date_range']['start'] = '2000-03-28T00:00:00.000Z';
     }
     if (med['date_range']['start'] === 'Invalid Date') {
       med['date_range']['start'] = null;

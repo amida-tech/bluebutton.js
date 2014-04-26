@@ -15,7 +15,7 @@ describe('CCDA', function() {
    * Here we modify the expected output for PhantomJS to fix that date for Node. */
   expectedOutput['labs'].forEach(function(lab) {
     lab['results'].forEach(function(result) {
-      result['date'] = '2000-03-23T08:00:00.000Z';
+      result['date'] = '2000-03-23T00:00:00.000Z';
     });
   });
 

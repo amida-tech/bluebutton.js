@@ -98,6 +98,10 @@ var runJsonTests = function(expectedOutput, bb) {
     _.each(vitals, function(actual, i) {
       it('should output the correct vital at index['+i+']', function() {
         var expected = expectedOutput.vitals[i];
+
+        console.log("actual: "+JSON.stringify(actual,null, 4));
+        console.log("expected: "+JSON.stringify(expected,null, 4));
+
         expect(actual).toEqual(expected);
       });
     });

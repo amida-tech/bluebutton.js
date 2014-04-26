@@ -5,8 +5,8 @@
   "allergies": [
     {
       "date_range": {
-        "start": "2009-09-02T07:00:00.000Z",
-        "end": "2010-01-03T08:00:00.000Z"
+        "start": "2009-09-02T00:00:00.000Z",
+        "end": "2010-01-03T00:00:00.000Z"
       },
       "name": "drug allergy",
       "code": "416098002",
@@ -34,8 +34,8 @@
     },
     {
       "date_range": {
-        "start": "2009-09-02T07:00:00.000Z",
-        "end": "2010-01-03T08:00:00.000Z"
+        "start": "2009-09-02T00:00:00.000Z",
+        "end": "2010-01-03T00:00:00.000Z"
       },
       "name": "drug allergy",
       "code": "416098002",
@@ -63,8 +63,8 @@
     },
     {
       "date_range": {
-        "start": "2009-09-02T07:00:00.000Z",
-        "end": "2010-01-03T08:00:00.000Z"
+        "start": "2009-09-02T00:00:00.000Z",
+        "end": "2010-01-03T00:00:00.000Z"
       },
       "name": "drug allergy",
       "code": "416098002",
@@ -100,7 +100,7 @@
       ],
       "family": "Everyman"
     },
-    "dob": "1954-11-25T08:00:00.000Z",
+    "dob": "1954-11-25T00:00:00.000Z",
     "gender": "male",
     "marital_status": "married",
     "address": {
@@ -164,7 +164,7 @@
   },
   "encounters": [
     {
-      "date": "2000-04-07T07:00:00.000Z",
+      "date": "2000-04-07T00:00:00.000Z",
       "name": "Office consultation - 15 minutes",
       "code": "99241",
       "code_system": "2.16.840.1.113883.6.12",
@@ -201,7 +201,7 @@
   ],
   "immunizations": [
     {
-      "date": "1999-10-31T07:00:00.000Z",
+      "date": "1999-10-31T00:00:00.000Z",
       "product": {
         "name": "Influenza virus vaccine",
         "code": "88",
@@ -228,7 +228,7 @@
       }
     },
     {
-      "date": "1998-12-15T08:00:00.000Z",
+      "date": "1998-12-15T00:00:00.000Z",
       "product": {
         "name": "Influenza virus vaccine",
         "code": "88",
@@ -255,7 +255,7 @@
       }
     },
     {
-      "date": "1998-12-15T08:00:00.000Z",
+      "date": "1998-12-15T00:00:00.000Z",
       "product": {
         "name": "Pneumococcal polysaccharide vaccine",
         "code": "33",
@@ -282,7 +282,7 @@
       }
     },
     {
-      "date": "1998-12-15T08:00:00.000Z",
+      "date": "1998-12-15T00:00:00.000Z",
       "product": {
         "name": "Tetanus and diphtheria toxoids - preservative free",
         "code": "103",
@@ -317,7 +317,7 @@
       "code_system_name": "SNOMED CT",
       "results": [
         {
-          "date": "2000-03-23T07:00:00.000Z",
+          "date": "2000-03-23T00:00:00.000Z",
           "name": "HGB",
           "value": 13.2,
           "unit": "g/dl",
@@ -333,7 +333,7 @@
           }
         },
         {
-          "date": "2000-03-23T07:00:00.000Z",
+          "date": "2000-03-23T00:00:00.000Z",
           "name": "WBC",
           "value": 6.7,
           "unit": "10+3/ul",
@@ -349,7 +349,7 @@
           }
         },
         {
-          "date": "2000-03-23T07:00:00.000Z",
+          "date": "2000-03-23T00:00:00.000Z",
           "name": "PLT",
           "value": 123,
           "unit": "10+3/ul",
@@ -370,8 +370,8 @@
   "medications": [
     {
       "date_range": {
-        "start": "2011-03-01T08:00:00.000Z",
-        "end": "2012-03-01T08:00:00.000Z"
+        "start": "2011-03-01T00:00:00.000Z",
+        "end": "2012-03-01T00:00:00.000Z"
       },
       "product": {
         "name": "Albuterol 0.09 MG/ACTUAT inhalant solution",
@@ -429,8 +429,8 @@
   "problems": [
     {
       "date_range": {
-        "start": "1998-02-28T08:00:00.000Z",
-        "end": "2011-01-03T08:00:00.000Z"
+        "start": "1998-02-28T00:00:00.000Z",
+        "end": "2011-01-03T00:00:00.000Z"
       },
       "name": "Pneumonia",
       "status": "Active",
@@ -440,91 +440,10 @@
     }
   ],
   "procedures": [
-    {
-      "date": "2011-02-15T08:00:00.000Z",
-      "name": "Colonic polypectomy",
-      "code": "274025005",
-      "code_system": "2.16.840.1.113883.6.96",
-      "specimen": {
-        "name": null,
-        "code": null,
-        "code_system": null
-      },
-      "performer": {
-        "organization": null,
-        "street": [
-          "17 Daws Rd."
-        ],
-        "city": "Blue Bell",
-        "state": "MA",
-        "zip": "02368",
-        "country": "US",
-        "phone": null
-      },
-      "device": {
-        "name": "Colonoscope",
-        "code": "90412006",
-        "code_system": "2.16.840.1.113883.6.96"
-      }
-    },
-    {
-      "date": "2011-02-03T08:00:00.000Z",
-      "name": "Colonic polypectomy",
-      "code": "274025005",
-      "code_system": "2.16.840.1.113883.6.96",
-      "specimen": {
-        "name": null,
-        "code": null,
-        "code_system": null
-      },
-      "performer": {
-        "organization": null,
-        "street": [
-          "17 Daws Rd."
-        ],
-        "city": "Blue Bell",
-        "state": "MA",
-        "zip": "02368",
-        "country": "US",
-        "phone": null
-      },
-      "device": {
-        "name": "General Acute Care Hospital",
-        "code": "GACH",
-        "code_system": "2.16.840.1.113883.5.111"
-      }
-    },
-    {
-      "date": "2011-02-03T08:00:00.000Z",
-      "name": "Colonic polypectomy",
-      "code": "274025005",
-      "code_system": "2.16.840.1.113883.6.96",
-      "specimen": {
-        "name": null,
-        "code": null,
-        "code_system": null
-      },
-      "performer": {
-        "organization": null,
-        "street": [
-          "17 Daws Rd."
-        ],
-        "city": "Blue Bell",
-        "state": "MA",
-        "zip": "02368",
-        "country": "US",
-        "phone": null
-      },
-      "device": {
-        "name": "General Acute Care Hospital",
-        "code": "GACH",
-        "code_system": "2.16.840.1.113883.5.111"
-      }
-    }
   ],
   "vitals": [
     {
-      "date": "1999-11-14T08:00:00.000Z",
+      "date": "1999-11-14T00:00:00.000Z",
       "results": [
         {
           "name": "Height",
@@ -553,7 +472,7 @@
       ]
     },
     {
-      "date": "2000-04-07T07:00:00.000Z",
+      "date": "2000-04-07T00:00:00.000Z",
       "results": [
         {
           "name": "Height",
