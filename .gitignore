@@ -1,5 +1,11 @@
+bower_components/
+build/
+components/
+node_modules/
+tmp/
 *.DS_Store
 *.log
+<<<<<<< HEAD
 npm-debug.log
 tmp/
 node_modules/
@@ -7,3 +13,5 @@ components/
 bower_components/
 .project
 .settings
+=======
+>>>>>>> upstream/master

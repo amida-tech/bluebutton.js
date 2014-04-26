@@ -12,13 +12,14 @@
 
     }(this, function () {
 
-        /* BlueButton.js -- 0.0.19 */
+        /* BlueButton.js -- 0.1.0 */
 
 /*
  * core.js - Essential and shared functionality.
  */
 
-var Core = function () {
+/* exported Core */
+var Core = (function () {
   
   // Properties
   ///////////////////////////
@@ -60,16 +61,18 @@ var Core = function () {
   var trim = function (o) {
     var y;
     for (var x in o) {
-      y = o[x];
-      // if (y === null || (y instanceof Object && Object.keys(y).length == 0)) {
-      if (y === null) {
-        delete o[x];
+      if (o.hasOwnProperty(x)) {
+        y = o[x];
+        // if (y === null || (y instanceof Object && Object.keys(y).length == 0)) {
+        if (y === null) {
+          delete o[x];
+        }
+        if (y instanceof Object) y = trim(y);
       }
-      if (y instanceof Object) y = trim(y);
     }
     return o;
   };
-  
+    
   // Init
   ///////////////////////////
   
@@ -79,21 +82,19 @@ var Core = function () {
     trim: trim
   };
   
-}();
+})();
 ;
 
 /*
  * xml.js - XML parsing functions.
  */
 
-var XML = function () {
-  
-  // Properties
-  ///////////////////////////
+/* exported XML */
+var XML = (function () {
   
   // Private Methods
   ///////////////////////////
-
+  
   /*
    * A function used to wrap DOM elements in an object so methods can be added
    * to the element object. IE8 does not allow methods to be added directly to
@@ -109,7 +110,7 @@ var XML = function () {
         attr: attr,
         val: val,
         isEmpty: isEmpty
-      }
+      };
     }
     
     // el is an array of elements
@@ -126,6 +127,7 @@ var XML = function () {
     }
   };
   
+  
   /*
    * Find element by tag name, then attribute value.
    */
@@ -137,6 +139,7 @@ var XML = function () {
       }
     }
   };
+  
   
   /*
    * Search for a template ID, and return its parent element.
@@ -154,6 +157,7 @@ var XML = function () {
     }
   };
   
+  
   /*
    * Search for the first occurrence of an element by tag name.
    */
@@ -166,12 +170,14 @@ var XML = function () {
     }
   };
   
+  
   /*
    * Search for all elements by tag name.
    */
   var elsByTag = function (tag) {
     return wrapElement(this.el.getElementsByTagName(tag));
   };
+  
   
   /*
    * Retrieve the element's attribute value. Example:
@@ -181,6 +187,7 @@ var XML = function () {
     if (!this.el) { return null; }
     return this.el.getAttribute(attr);
   };
+  
   
   /*
    * Retrieve the element's value. For example, if the element is:
@@ -197,6 +204,7 @@ var XML = function () {
     }
   };
   
+  
   /*
    * Creates and returns an empty DOM element with tag name "empty":
    *   <empty></empty>
@@ -206,18 +214,20 @@ var XML = function () {
     return wrapElement(el);
   };
   
+  
   /*
    * Determines if the element is empty, i.e.:
    *   <empty></empty>
    * This element is created by function `emptyEL`.
    */
   var isEmpty = function () {
-    if (this.el.tagName.toLowerCase() == 'empty') {
+    if (this.el.tagName.toLowerCase() === 'empty') {
       return true;
     } else {
       return false;
     }
   };
+  
   
   // Public Methods
   ///////////////////////////
@@ -225,7 +235,7 @@ var XML = function () {
   /*
    * Cross-browser XML parsing supporting IE8+ and Node.js.
    */
-  var parseXML = function (data) {
+  var parse = function (data) {
     // XML data must be a string
     if (!data || typeof data !== "string") {
       console.log("BB Error: XML data is not a string");
@@ -243,7 +253,7 @@ var XML = function () {
       
       // Standard parser
       if (window.DOMParser) {
-        parser = new DOMParser();
+        var parser = new DOMParser();
         xml = parser.parseFromString(data, "text/xml");
         
       // IE
@@ -266,12 +276,13 @@ var XML = function () {
     return wrapElement(xml);
   };
   
+  
   // Init
   ///////////////////////////
   
   // Establish the root object, `window` in the browser, or `global` in Node.
   var root = this,
-      jsdom = undefined,
+      jsdom,
       isNode = false,
       doc = root.document; // Will be `undefined` if we're in Node
 
@@ -284,30 +295,27 @@ var XML = function () {
     }
   }
   
+  
   // Reveal public methods
   return {
-    parseXML: parseXML
+    parse: parse
   };
   
-}();
+})();
 ;
 
 /*
  * codes.js
  */
 
-var Codes = function () {
+/* exported Codes */
+var Codes = (function () {
   
   // Properties
   ///////////////////////////
   
   // Private Methods
   ///////////////////////////
-
-  /*
-   * Consistently parse a CCDA code.
-   */
-  var parse = function (el) {};
   
   /*
    * Administrative Gender (HL7 V3)
@@ -361,68 +369,107 @@ var Codes = function () {
     maritalStatus: maritalStatus
   };
   
-}();
+})();
 ;
 
 /*
  * c32.js
  */
 
-var C32 = function () {
-  
-  // Dependancies
-  ///////////////////////////
-  
-  // Properties
-  ///////////////////////////
-  
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
-  
-  // Init
-  ///////////////////////////
-  
-  // Reveal public methods
-  return {
-  };
-  
-}();
-;
+var Parsers = {};
 
-/*
- * allergies.js
- */
-
-C32.Allergies = function () {
+Parsers.C32 = (function () {
   
-  // Dependancies
-  ///////////////////////////
   var parseDate = Core.parseDate;
   
-  // Properties
-  ///////////////////////////
+  /*
+   * Preprocesses the C32 document
+   */
+  var preprocess = function (c32) {
+    c32.section = section;
+    return c32;
+  };
   
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
   
   /*
-   * Parse the allergies CCDA XML section.
+   * Get entries within a section, add `each` function
    */
-  var parse = function (xmlDOM) {
-    var data = [], el, entries, entry;
+  var entries = function () {
+    var each = function (callback) {
+      for (var i = 0; i < this.length; i++) {
+        callback(this[i]);
+      }
+    };
     
-    el = xmlDOM.template('2.16.840.1.113883.3.88.11.83.102');
-
-    entries = el.elsByTag('entry');
+    var els = this.elsByTag('entry');
+    els.each = each;
+    return els;
+  };
+  
+  
+  /*
+   * Finds the section of a C32 document
+   */
+  var section = function (name) {
+    var el;
     
-    for (var i = 0; i < entries.length; i++) {
-      entry = entries[i];
+    switch (name) {
+      case 'allergies':
+        el = this.template('2.16.840.1.113883.3.88.11.83.102');
+        el.entries = entries;
+        return el;
+      case 'demographics':
+        el = this.template('2.16.840.1.113883.3.88.11.32.1');
+        el.entries = entries;
+        return el;
+      case 'encounters':
+        el = this.template('2.16.840.1.113883.3.88.11.83.127');
+        el.entries = entries;
+        return el;
+      case 'immunizations':
+        el = this.template('2.16.840.1.113883.3.88.11.83.117');
+        el.entries = entries;
+        return el;
+      case 'labs':
+        el = this.template('2.16.840.1.113883.3.88.11.83.122');
+        el.entries = entries;
+        return el;
+      case 'medications':
+        el = this.template('2.16.840.1.113883.3.88.11.83.112');
+        el.entries = entries;
+        return el;
+      case 'problems':
+        el = this.template('2.16.840.1.113883.3.88.11.83.103');
+        el.entries = entries;
+        return el;
+      case 'procedures':
+        el = this.template('2.16.840.1.113883.3.88.11.83.108');
+        el.entries = entries;
+        return el;
+      case 'vitals':
+        el = this.template('2.16.840.1.113883.3.88.11.83.119');
+        el.entries = entries;
+        return el;
+    }
+    
+    return null;
+  };
+  
+  
+  /*
+   * Parses a C32 document
+   */
+  var run = function (c32) {
+    var data = {}, el, i;
+    
+    c32 = preprocess(c32);
+    
+    // Parse allergies /////////////////////////////////////////////////////////
+    data.allergies = [];
+    
+    var allergies = c32.section('allergies');
+    
+    allergies.entries().each(function(entry) {
       
       el = entry.tag('effectiveTime');
       var start_date = parseDate(el.tag('low').attr('value')),
@@ -462,7 +509,7 @@ C32.Allergies = function () {
       el = entry.template('2.16.840.1.113883.10.20.1.39').tag('value');
       var status = el.attr('displayName');
       
-      data.push({
+      data.allergies.push({
         date_range: {
           start: start_date,
           end: end_date
@@ -491,56 +538,22 @@ C32.Allergies = function () {
           code_system_name: allergen_code_system_name
         }
       });
-    }
+    });
     
-    return data;
-  };
-  
-  // Init
-  ///////////////////////////
-  
-  // Reveal public methods
-  return {
-    parse: parse
-  };
-  
-}();
-;
-
-/*
- * demographics.js
- */
-
-C32.Demographics = function () {
-  
-  // Dependancies
-  ///////////////////////////
-  var parseDate = Core.parseDate;
-  
-  // Properties
-  ///////////////////////////
-  
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
-  
-  /*
-   * Parse the demographics CCDA XML section.
-   */
-  var parse = function (xmlDOM) {
-    var data = {}, el, els, patient;
     
-    el = xmlDOM.template('2.16.840.1.113883.3.88.11.32.1');
-    patient = el.tag('patientRole');
+    // Parse demographics //////////////////////////////////////////////////////
+    data.demographics = {};
+    
+    var demographics = c32.section('demographics');
+    
+    var patient = demographics.tag('patientRole');
     el = patient.tag('patient').tag('name');
     var prefix = el.tag('prefix').val();
     
-    els = el.elsByTag('given');
+    var els = el.elsByTag('given');
     var given = [];
     
-    for (var i = 0; i < els.length; i++) {
+    for (i = 0; i < els.length; i++) {
       given.push(els[i].val());
     }
     
@@ -555,7 +568,7 @@ C32.Demographics = function () {
     els = el.elsByTag('streetAddressLine');
     var street = [];
     
-    for (var i = 0; i < els.length; i++) {
+    for (i = 0; i < els.length; i++) {
       street.push(els[i].val());
     }
     
@@ -589,7 +602,7 @@ C32.Demographics = function () {
     els = el.elsByTag('given');
     var guardian_given = [];
     
-    for (var i = 0; i < els.length; i++) {
+    for (i = 0; i < els.length; i++) {
       guardian_given.push(els[i].val());
     }
     
@@ -600,7 +613,7 @@ C32.Demographics = function () {
     els = el.elsByTag('streetAddressLine');
     var guardian_street = [];
     
-    for (var i = 0; i < els.length; i++) {
+    for (i = 0; i < els.length; i++) {
       guardian_street.push(els[i].val());
     }
     
@@ -616,7 +629,7 @@ C32.Demographics = function () {
     els = el.elsByTag('streetAddressLine');
     var provider_street = [];
     
-    for (var i = 0; i < els.length; i++) {
+    for (i = 0; i < els.length; i++) {
       provider_street.push(els[i].val());
     }
     
@@ -625,7 +638,7 @@ C32.Demographics = function () {
         provider_zip = el.tag('postalCode').val(),
         provider_country = el.tag('country').val();
     
-    data = {
+    data.demographics = {
       name: {
         prefix: prefix,
         given: given,
@@ -686,55 +699,17 @@ C32.Demographics = function () {
       }
     };
     
-    return data;
-  };
-  
-  // Init
-  ///////////////////////////
-  
-  // Reveal public methods
-  return {
-    parse: parse
-  };
-  
-}();
-;
-
-/*
- * encounters.js
- */
-
-C32.Encounters = function () {
-  
-  // Dependancies
-  ///////////////////////////
-  var parseDate = Core.parseDate;
-  
-  // Properties
-  ///////////////////////////
-  
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
-  
-  /*
-   * Parse the encounters CCDA XML section.
-   */
-  var parse = function (xmlDOM) {
-    var data = [], el, els, entries, entry;
     
-    el = xmlDOM.template('2.16.840.1.113883.3.88.11.83.127');
-
-    entries = el.elsByTag('entry');
+    // Parse encounters ////////////////////////////////////////////////////////
+    data.encounters = [];
     
-    for (var i = 0; i < entries.length; i++) {
-      entry = entries[i];
+    var encounters = c32.section('encounters');
+    
+    encounters.entries().each(function(entry) {
       
       var date = parseDate(entry.tag('effectiveTime').attr('value'));
       if (!date) {
-        var date = parseDate(entry.tag('effectiveTime').tag('low').attr('value'));
+        date = parseDate(entry.tag('effectiveTime').tag('low').attr('value'));
       }
       
       el = entry.tag('code');
@@ -763,7 +738,7 @@ C32.Encounters = function () {
           performer_code = el.attr('code'),
           performer_code_system = el.attr('codeSystem'),
           performer_code_system_name = el.attr('codeSystemName');
-
+      
       // participant => location
       el = entry.tag('participant');
       var organization = el.tag('name').val();
@@ -780,7 +755,7 @@ C32.Encounters = function () {
           zip = el.tag('postalCode').val(),
           country = el.tag('country').val();
       
-      data.push({
+      data.encounters.push({
         date: date,
         name: name,
         code: code,
@@ -813,53 +788,15 @@ C32.Encounters = function () {
           country: country
         }
       });
-    }
+    });
     
-    return data;
-  };
-  
-  // Init
-  ///////////////////////////
-  
-  // Reveal public methods
-  return {
-    parse: parse
-  };
-  
-}();
-;
-
-/*
- * immunizations.js
- */
-
-C32.Immunizations = function () {
-  
-  // Dependancies
-  ///////////////////////////
-  var parseDate = Core.parseDate;
-  
-  // Properties
-  ///////////////////////////
-  
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
-  
-  /*
-   * Parse the immunizations CCDA XML section.
-   */
-  var parse = function (xmlDOM) {
-    var data = [], el, entries, entry;
     
-    el = xmlDOM.template('2.16.840.1.113883.3.88.11.83.117');
-
-    entries = el.elsByTag('entry');
+    // Parse immunizations /////////////////////////////////////////////////////
+    data.immunizations = [];
     
-    for (var i = 0; i < entries.length; i++) {
-      entry = entries[i];
+    var immunizations = c32.section('immunizations');
+    
+    immunizations.entries().each(function(entry) {
       
       // date
       el = entry.tag('effectiveTime');
@@ -894,7 +831,7 @@ C32.Immunizations = function () {
           education_code = el.attr('code'),
           education_code_system = el.attr('codeSystem');
       
-      data.push({
+      data.immunizations.push({
         date: date,
         product: {
           name: product_name,
@@ -921,54 +858,16 @@ C32.Immunizations = function () {
           code_system: education_code_system
         }
       });
-    }
+    });
     
-    return data;
-  };
-  
-  // Init
-  ///////////////////////////
-  
-  // Reveal public methods
-  return {
-    parse: parse
-  };
-  
-}();
-;
-
-/*
- * labs.js
- */
-
-C32.Labs = function () {
-  
-  // Dependancies
-  ///////////////////////////
-  var parseDate = Core.parseDate;
-  
-  // Properties
-  ///////////////////////////
-  
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
-  
-  /*
-   * Parse the labs CCDA XML section.
-   */
-  var parse = function (xmlDOM) {
-    var data = [], results_data, el, entries, entry, results, result;
     
-    el = xmlDOM.template('2.16.840.1.113883.3.88.11.83.122');
-
-    entries = el.elsByTag('entry');
+    // Parse labs //////////////////////////////////////////////////////////////
+    data.labs = [];
     
-    for (var i = 0; i < entries.length; i++) {
-      entry = entries[i];
-
+    var labs = c32.section('labs');
+    
+    labs.entries().each(function(entry) {
+      
       el = entry.tag('effectiveTime');
       var panel_date = parseDate(entry.tag('effectiveTime').attr('value'));
       if (!panel_date) {
@@ -982,12 +881,13 @@ C32.Labs = function () {
           panel_code_system = el.attr('codeSystem'),
           panel_code_system_name = el.attr('codeSystemName');
       
-      results = entry.elsByTag('component');
-      results_data = [];
+      var result;
+      var results = entry.elsByTag('component');
+      var results_data = [];
       
-      for (var j = 0; j < results.length; j++) {
-        result = results[j];
-
+      for (var i = 0; i < results.length; i++) {
+        result = results[i];
+        
         // sometimes results organizers contain non-results. we only want results
         if (result.template('2.16.840.1.113883.10.20.1.31').val()) {
           var date = parseDate(result.tag('effectiveTime').attr('value'));
@@ -1001,7 +901,7 @@ C32.Labs = function () {
           el = result.tag('value');
           var value = parseFloat(el.attr('value')),
               unit = el.attr('unit');
-
+      
           el = result.tag('referenceRange');
           var reference_range_text = el.tag('observationRange').tag('text').val(),
               reference_range_low_unit = el.tag('observationRange').tag('low').attr('unit'),
@@ -1028,7 +928,7 @@ C32.Labs = function () {
         }
       }
       
-      data.push({
+      data.labs.push({
         name: panel_name,
         code: panel_code,
         code_system: panel_code_system,
@@ -1036,53 +936,15 @@ C32.Labs = function () {
         date: panel_date,
         results: results_data
       });
-    }
+    });
     
-    return data;
-  };
-  
-  // Init
-  ///////////////////////////
-  
-  // Reveal public methods
-  return {
-    parse: parse
-  };
-  
-}();
-;
-
-/*
- * medications.js
- */
-
-C32.Medications = function () {
-  
-  // Dependancies
-  ///////////////////////////
-  var parseDate = Core.parseDate;
-  
-  // Properties
-  ///////////////////////////
-  
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
-  
-  /*
-   * Parse the medications CCDA XML section.
-   */
-  var parse = function (xmlDOM) {
-    var data = [], el, entries, entry;
     
-    el = xmlDOM.template('2.16.840.1.113883.3.88.11.83.112');
-
-    entries = el.elsByTag('entry');
+    // Parse medications ///////////////////////////////////////////////////////
+    data.medications = [];
     
-    for (var i = 0; i < entries.length; i++) {
-      entry = entries[i];
+    var medications = c32.section('medications');
+    
+    medications.entries().each(function(entry) {
       
       el = entry.tag('effectiveTime');
       var start_date = parseDate(el.tag('low').attr('value')),
@@ -1110,14 +972,14 @@ C32.Medications = function () {
       el = entry.tag('precondition').tag('value');
       var precondition_name = el.attr('displayName'),
           precondition_code = el.attr('code'),
-          precondition_code_system = el.attr('codeSystem'),
+          precondition_code_system = el.attr('codeSystem');
       
       el = entry.template('2.16.840.1.113883.10.20.1.28').tag('value');
       var reason_name = el.attr('displayName'),
           reason_code = el.attr('code'),
           reason_code_system = el.attr('codeSystem');
       
-      el = entry.tag('routeCode')
+      el = entry.tag('routeCode');
       var route_name = el.attr('displayName'),
           route_code = el.attr('code'),
           route_code_system = el.attr('codeSystem'),
@@ -1141,7 +1003,7 @@ C32.Medications = function () {
       var prescriber_organization = el.tag('name').val(),
           prescriber_person = null;
       
-      data.push({
+      data.medications.push({
         date_range: {
           start: start_date,
           end: end_date
@@ -1198,53 +1060,15 @@ C32.Medications = function () {
           person: prescriber_person
         }
       });
-    }
+    });
     
-    return data;
-  };
-  
-  // Init
-  ///////////////////////////
-  
-  // Reveal public methods
-  return {
-    parse: parse
-  };
-  
-}();
-;
-
-/*
- * problems.js
- */
-
-C32.Problems = function () {
-  
-  // Dependancies
-  ///////////////////////////
-  var parseDate = Core.parseDate;
-  
-  // Properties
-  ///////////////////////////
-  
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
-  
-  /*
-   * Parse the problems CCDA XML section.
-   */
-  var parse = function (xmlDOM) {
-    var data = [], el, entries, entry;
     
-    el = xmlDOM.template('2.16.840.1.113883.3.88.11.83.103');
+    // Parse problems //////////////////////////////////////////////////////////
+    data.problems = [];
     
-    entries = el.elsByTag('entry');
+    var problems = c32.section('problems');
     
-    for (var i = 0; i < entries.length; i++) {
-      entry = entries[i];
+    problems.entries().each(function(entry) {
       
       el = entry.tag('effectiveTime');
       var start_date = parseDate(el.tag('low').attr('value')),
@@ -1261,7 +1085,7 @@ C32.Problems = function () {
       el = entry.template('2.16.840.1.113883.10.20.1.38');
       var age = parseFloat(el.tag('value').attr('value'));
       
-      data.push({
+      data.problems.push({
         date_range: {
           start: start_date,
           end: end_date
@@ -1272,53 +1096,15 @@ C32.Problems = function () {
         code: code,
         code_system: code_system
       });
-    }
+    });
     
-    return data;
-  };
-  
-  // Init
-  ///////////////////////////
-  
-  // Reveal public methods
-  return {
-    parse: parse
-  };
-  
-}();
-;
-
-/*
- * procedures.js
- */
-
-C32.Procedures = function () {
-  
-  // Dependancies
-  ///////////////////////////
-  var parseDate = Core.parseDate;
-  
-  // Properties
-  ///////////////////////////
-  
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
-  
-  /*
-   * Parse the procedures CCDA XML section.
-   */
-  var parse = function (xmlDOM) {
-    var data = [], el, els, entries, entry;
     
-    el = xmlDOM.template('2.16.840.1.113883.3.88.11.83.108');
+    // Parse procedures ////////////////////////////////////////////////////////
+    data.procedures = [];
     
-    entries = el.elsByTag('entry');
+    var procedures = c32.section('procedures');
     
-    for (var i = 0; i < entries.length; i++) {
-      entry = entries[i];
+    procedures.entries().each(function(entry) {
       
       el = entry.tag('effectiveTime');
       var date = parseDate(el.attr('value'));
@@ -1359,7 +1145,7 @@ C32.Procedures = function () {
           device_code = el.attr('code'),
           device_code_system = el.attr('codeSystem');
       
-      data.push({
+      data.procedures.push({
         date: date,
         name: name,
         code: code,
@@ -1384,59 +1170,22 @@ C32.Procedures = function () {
           code_system: device_code_system
         }
       });
-    }
+    });
     
-    return data;
-  };
-  
-  // Init
-  ///////////////////////////
-  
-  // Reveal public methods
-  return {
-    parse: parse
-  };
-  
-}();
-;
-
-/*
- * vitals.js
- */
-
-C32.Vitals = function () {
-  
-  // Dependancies
-  ///////////////////////////
-  var parseDate = Core.parseDate;
-  
-  // Properties
-  ///////////////////////////
-  
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
-  
-  /*
-   * Parse the vitals CCDA XML section.
-   */
-  var parse = function (xmlDOM) {
-    var data = [], results_data, el, entries, entry, results, result;
     
-    el = xmlDOM.template('2.16.840.1.113883.3.88.11.83.119');
+    // Parse vitals ////////////////////////////////////////////////////////////
+    data.vitals = [];
     
-    entries = el.elsByTag('entry');
+    var vitals = c32.section('vitals');
     
-    for (var i = 0; i < entries.length; i++) {
-      entry = entries[i];
+    vitals.entries().each(function(entry) {
       
       el = entry.tag('effectiveTime');
       var entry_date = parseDate(el.attr('value'));
       
-      results = entry.elsByTag('component');
-      results_data = [];
+      var result;
+      var results = entry.elsByTag('component');
+      var results_data = [];
       
       for (var j = 0; j < results.length; j++) {
         result = results[j];
@@ -1456,100 +1205,173 @@ C32.Vitals = function () {
         results_data.push({
           name: name,
           code: code,
-          // code_system: code_system,
-          // code_system_name: code_system_name,
+          code_system: code_system,
+          code_system_name: code_system_name,
           value: value,
           unit: unit
         });
       }
       
-      data.push({
+      data.vitals.push({
         date: entry_date,
         results: results_data
       });
-    }
+    });
     
+    // Return the parsed data
     return data;
   };
   
-  // Init
-  ///////////////////////////
   
   // Reveal public methods
   return {
-    parse: parse
+    run: run
   };
   
-}();
+})();
 ;
 
 /*
  * ccda.js
  */
 
-var CCDA = function () {
-  
-  // Dependancies
-  ///////////////////////////
-  
-  // Properties
-  ///////////////////////////
-  
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
-  
-  // Init
-  ///////////////////////////
-  
-  // Reveal public methods
-  return {
-  };
-  
-}();
-;
+var Parsers = {};
 
-/*
- * allergies.js
- */
-
-CCDA.Allergies = function () {
+Parsers.CCDA = (function () {
   
-  // Dependancies
-  ///////////////////////////
   var parseDate = Core.parseDate;
   
-  // Properties
-  ///////////////////////////
+  /*
+   * Preprocesses the CCDA document
+   */
+  var preprocess = function (ccda) {
+    ccda.section = section;
+    return ccda;
+  };
   
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
   
   /*
-   * Parse the allergies CCDA XML section.
+   * Get entries within a section, add `each` function
    */
-  var parse = function (xmlDOM) {
-    var data = [], el, entries, entry;
+  var entries = function () {
+    var each = function (callback) {
+      for (var i = 0; i < this.length; i++) {
+        callback(this[i]);
+      }
+    };
     
-    el = xmlDOM.template('2.16.840.1.113883.10.20.22.2.6.1');
-    entries = el.elsByTag('entry');
+    var els = this.elsByTag('entry');
+    els.each = each;
+    return els;
+  };
+  
+  
+  /*
+   * Finds the section of a CCDA document
+   */
+  var section = function (name) {
+    var el;
     
-    for (var i = 0; i < entries.length; i++) {
-      entry = entries[i];
+    switch (name) {
+      case 'allergies':
+        el = this.template('2.16.840.1.113883.10.20.22.2.6.1');
+        el.entries = entries;
+        return el;
+      case 'demographics':
+        el = this.template('2.16.840.1.113883.10.20.22.1.1');
+        el.entries = entries;
+        return el;
+      case 'encounters':
+        el = this.template('2.16.840.1.113883.10.20.22.2.22');
+        if (el.isEmpty()) {
+          el = this.template('2.16.840.1.113883.10.20.22.2.22.1');
+          el.entries = entries;
+          return el;
+        } else {
+          el.entries = entries;
+          return el;
+        }
+        break;
+      case 'immunizations':
+        el = this.template('2.16.840.1.113883.10.20.22.2.2.1');
+        if (el.isEmpty()) {
+          el = this.template('2.16.840.1.113883.10.20.22.2.2');
+          el.entries = entries;
+          return el;
+        } else {
+          el.entries = entries;
+          return el;
+        }
+        break;
+      case 'labs':
+        el = this.template('2.16.840.1.113883.10.20.22.2.3.1');
+        el.entries = entries;
+        return el;
+      case 'medications':
+        el = this.template('2.16.840.1.113883.10.20.22.2.1.1');
+        el.entries = entries;
+        return el;
+      case 'problems':
+        el = this.template('2.16.840.1.113883.10.20.22.2.5.1');
+        if (el.isEmpty()) {
+          el = this.template('2.16.840.1.113883.10.20.22.2.5');
+          el.entries = entries;
+          return el;
+        } else {
+          el.entries = entries;
+          return el;
+        }
+        break;
+      case 'procedures':
+        el = this.template('2.16.840.1.113883.10.20.22.2.7.1');
+        if (el.isEmpty()) {
+          el = this.template('2.16.840.1.113883.10.20.22.2.7');
+        } else {
+          el.entries = entries;
+          return el;
+        }
+        break;
+      case 'vitals':
+        el = this.template('2.16.840.1.113883.10.20.22.2.4.1');
+        el.entries = entries;
+        return el;
+    }
+    
+    return null;
+  };
+  
+  
+  /*
+   * Parses a CCDA document
+   */
+  var run = function (ccda) {
+    var data = {}, el, i;
+    
+    ccda = preprocess(ccda);
+    
+    // Parse allergies /////////////////////////////////////////////////////////
+    data.allergies = [];
+    
+    var allergies = ccda.section('allergies');
+    
+    allergies.entries().each(function(entry) {
       
       el = entry.tag('effectiveTime');
       var start_date = parseDate(el.tag('low').attr('value')),
-          end_date = parseDate(el.tag('high').attr('value')),
-          single_date = parseDate(el.attr('value'));
-      if (! (start_date && end_date) && single_date) {
-          start_date = single_date;
-          end_date = single_date;
-      }
+          end_date = parseDate(el.tag('high').attr('value'));
+      
+      el = entry.template('2.16.840.1.113883.10.20.22.4.7').tag('code');
+      var name = el.attr('displayName'),
+          code = el.attr('code'),
+          code_system = el.attr('codeSystem'),
+          code_system_name = el.attr('codeSystemName');
+      
+      // value => reaction_type
+      el = entry.template('2.16.840.1.113883.10.20.22.4.7').tag('value');
+      var reaction_type_name = el.attr('displayName'),
+          reaction_type_code = el.attr('code'),
+          reaction_type_code_system = el.attr('codeSystem'),
+          reaction_type_code_system_name = el.attr('codeSystemName');
       
       // reaction
       el = entry.template('2.16.840.1.113883.10.20.22.4.9').tag('value');
@@ -1572,15 +1394,15 @@ CCDA.Allergies = function () {
       el = entry.template('2.16.840.1.113883.10.20.22.4.28').tag('value');
       var status = el.attr('displayName');
       
-      data.push({
+      data.allergies.push({
         date_range: {
           start: start_date,
           end: end_date
         },
-        name: allergen_name,
-        code: allergen_code,
-        code_system: allergen_code_system,
-        code_system_name: allergen_code_system_name,
+        name: name,
+        code: code,
+        code_system: code_system,
+        code_system_name: code_system_name,
         status: status,
         severity: severity,
         reaction: {
@@ -1588,57 +1410,35 @@ CCDA.Allergies = function () {
           code: reaction_code,
           code_system: reaction_code_system
         },
+        reaction_type: {
+          name: reaction_type_name,
+          code: reaction_type_code,
+          code_system: reaction_type_code_system,
+          code_system_name: reaction_type_code_system_name
+        },
+        allergen: {
+          name: allergen_name,
+          code: allergen_code,
+          code_system: allergen_code_system,
+          code_system_name: allergen_code_system_name
+        }
       });
-    }
+    });
     
-    return data;
-  };
-  
-  // Init
-  ///////////////////////////
-  
-  // Reveal public methods
-  return {
-    parse: parse
-  };
-  
-}();
-;
-
-/*
- * demographics.js
- */
-
-CCDA.Demographics = function () {
-  
-  // Dependancies
-  ///////////////////////////
-  var parseDate = Core.parseDate;
-  
-  // Properties
-  ///////////////////////////
-  
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
-  
-  /*
-   * Parse the demographics CCDA XML section.
-   */
-  var parse = function (xmlDOM) {
-    var data = {}, el, els, patient;
     
-    el = xmlDOM.template('2.16.840.1.113883.10.20.22.1.1');
-    patient = el.tag('patientRole');
+    // Parse demographics //////////////////////////////////////////////////////
+    data.demographics = {};
+    
+    var demographics = ccda.section('demographics');
+    
+    var patient = demographics.tag('patientRole');
     el = patient.tag('patient').tag('name');
     var prefix = el.tag('prefix').val();
     
-    els = el.elsByTag('given');
+    var els = el.elsByTag('given');
     var given = [];
     
-    for (var i = 0; i < els.length; i++) {
+    for (i = 0; i < els.length; i++) {
       given.push(els[i].val());
     }
     
@@ -1653,7 +1453,7 @@ CCDA.Demographics = function () {
     els = el.elsByTag('streetAddressLine');
     var street = [];
     
-    for (var i = 0; i < els.length; i++) {
+    for (i = 0; i < els.length; i++) {
       street.push(els[i].val());
     }
     
@@ -1687,7 +1487,7 @@ CCDA.Demographics = function () {
     els = el.elsByTag('given');
     var guardian_given = [];
     
-    for (var i = 0; i < els.length; i++) {
+    for (i = 0; i < els.length; i++) {
       guardian_given.push(els[i].val());
     }
     
@@ -1698,7 +1498,7 @@ CCDA.Demographics = function () {
     els = el.elsByTag('streetAddressLine');
     var guardian_street = [];
     
-    for (var i = 0; i < els.length; i++) {
+    for (i = 0; i < els.length; i++) {
       guardian_street.push(els[i].val());
     }
     
@@ -1714,7 +1514,7 @@ CCDA.Demographics = function () {
     els = el.elsByTag('streetAddressLine');
     var provider_street = [];
     
-    for (var i = 0; i < els.length; i++) {
+    for (i = 0; i < els.length; i++) {
       provider_street.push(els[i].val());
     }
     
@@ -1723,7 +1523,7 @@ CCDA.Demographics = function () {
         provider_zip = el.tag('postalCode').val(),
         provider_country = el.tag('country').val();
     
-    data = {
+    data.demographics = {
       name: {
         prefix: prefix,
         given: given,
@@ -1784,54 +1584,13 @@ CCDA.Demographics = function () {
       }
     };
     
-    return data;
-  };
-  
-  // Init
-  ///////////////////////////
-  
-  // Reveal public methods
-  return {
-    parse: parse
-  };
-  
-}();
-;
-
-/*
- * encounters.js
- */
-
-CCDA.Encounters = function () {
-  
-  // Dependancies
-  ///////////////////////////
-  var parseDate = Core.parseDate;
-  
-  // Properties
-  ///////////////////////////
-  
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
-  
-  /*
-   * Parse the encounters CCDA XML section.
-   */
-  var parse = function (xmlDOM) {
-    var data = [], el, els, entries, entry;
     
-    el = xmlDOM.template('2.16.840.1.113883.10.20.22.2.22')
-    if (el.isEmpty()) {
-      el = xmlDOM.template('2.16.840.1.113883.10.20.22.2.22.1');
-    }
+    // Parse encounters ////////////////////////////////////////////////////////
+    data.encounters = [];
     
-    entries = el.elsByTag('entry');
+    var encounters = ccda.section('encounters');
     
-    for (var i = 0; i < entries.length; i++) {
-      entry = entries[i];
+    encounters.entries().each(function(entry) {
       
       var date = parseDate(entry.tag('effectiveTime').attr('value'));
       
@@ -1861,7 +1620,7 @@ CCDA.Encounters = function () {
           performer_code = el.attr('code'),
           performer_code_system = el.attr('codeSystem'),
           performer_code_system_name = el.attr('codeSystemName');
-
+    
       // participant => location
       el = entry.tag('participant');
       var organization = el.tag('code').attr('displayName');
@@ -1878,7 +1637,7 @@ CCDA.Encounters = function () {
           zip = el.tag('postalCode').val(),
           country = el.tag('country').val();
       
-      data.push({
+      data.encounters.push({
         date: date,
         name: name,
         code: code,
@@ -1911,56 +1670,15 @@ CCDA.Encounters = function () {
           country: country
         }
       });
-    }
+    });
     
-    return data;
-  };
-  
-  // Init
-  ///////////////////////////
-  
-  // Reveal public methods
-  return {
-    parse: parse
-  };
-  
-}();
-;
-
-/*
- * immunizations.js
- */
-
-CCDA.Immunizations = function () {
-  
-  // Dependancies
-  ///////////////////////////
-  var parseDate = Core.parseDate;
-  
-  // Properties
-  ///////////////////////////
-  
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
-  
-  /*
-   * Parse the immunizations CCDA XML section.
-   */
-  var parse = function (xmlDOM) {
-    var data = [], el, entries, entry;
     
-    el = xmlDOM.template('2.16.840.1.113883.10.20.22.2.2.1')
-    if (el.isEmpty()) {
-      el = xmlDOM.template('2.16.840.1.113883.10.20.22.2.2');
-    }
+    // Parse immunizations /////////////////////////////////////////////////////
+    data.immunizations = [];
     
-    entries = el.elsByTag('entry');
+    var immunizations = ccda.section('immunizations');
     
-    for (var i = 0; i < entries.length; i++) {
-      entry = entries[i];
+    immunizations.entries().each(function(entry) {
       
       // date
       el = entry.tag('effectiveTime');
@@ -1995,7 +1713,7 @@ CCDA.Immunizations = function () {
           education_code = el.attr('code'),
           education_code_system = el.attr('codeSystem');
       
-      data.push({
+      data.immunizations.push({
         date: date,
         product: {
           name: product_name,
@@ -2022,52 +1740,15 @@ CCDA.Immunizations = function () {
           code_system: education_code_system
         }
       });
-    }
+    });
     
-    return data;
-  };
-  
-  // Init
-  ///////////////////////////
-  
-  // Reveal public methods
-  return {
-    parse: parse
-  };
-  
-}();
-;
-
-/*
- * labs.js
- */
-
-CCDA.Labs = function () {
-  
-  // Dependancies
-  ///////////////////////////
-  var parseDate = Core.parseDate;
-  
-  // Properties
-  ///////////////////////////
-  
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
-  
-  /*
-   * Parse the labs CCDA XML section.
-   */
-  var parse = function (xmlDOM) {
-    var data = [], results_data, el, entries, entry, results, result;
     
-    el = xmlDOM.template('2.16.840.1.113883.10.20.22.2.3.1');
-    entries = el.elsByTag('entry');
+    // Parse labs //////////////////////////////////////////////////////////////
+    data.labs = [];
     
-    for (var i = 0; i < entries.length; i++) {
-      entry = entries[i];
+    var labs = ccda.section('labs');
+    
+    labs.entries().each(function(entry) {
       
       // panel
       el = entry.tag('code');
@@ -2076,11 +1757,12 @@ CCDA.Labs = function () {
           panel_code_system = el.attr('codeSystem'),
           panel_code_system_name = el.attr('codeSystemName');
       
-      results = entry.elsByTag('component');
-      results_data = [];
+      var result;
+      var results = entry.elsByTag('component');
+      var results_data = [];
       
-      for (var j = 0; j < results.length; j++) {
-        result = results[j];
+      for (var i = 0; i < results.length; i++) {
+        result = results[i];
         
         var date = parseDate(result.tag('effectiveTime').attr('value'));
         
@@ -2119,59 +1801,22 @@ CCDA.Labs = function () {
         });
       }
       
-      data.push({
+      data.labs.push({
         name: panel_name,
         code: panel_code,
         code_system: panel_code_system,
         code_system_name: panel_code_system_name,
         results: results_data
       });
-    }
+    });
     
-    return data;
-  };
-  
-  // Init
-  ///////////////////////////
-  
-  // Reveal public methods
-  return {
-    parse: parse
-  };
-  
-}();
-;
-
-/*
- * medications.js
- */
-
-CCDA.Medications = function () {
-  
-  // Dependancies
-  ///////////////////////////
-  var parseDate = Core.parseDate;
-  
-  // Properties
-  ///////////////////////////
-  
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
-  
-  /*
-   * Parse the medications CCDA XML section.
-   */
-  var parse = function (xmlDOM) {
-    var data = [], el, entries, entry;
     
-    el = xmlDOM.template('2.16.840.1.113883.10.20.22.2.1.1');
-    entries = el.elsByTag('entry');
+    // Parse medications ///////////////////////////////////////////////////////
+    data.medications = [];
     
-    for (var i = 0; i < entries.length; i++) {
-      entry = entries[i];
+    var medications = ccda.section('medications');
+    
+    medications.entries().each(function(entry) {
       
       el = entry.tag('effectiveTime');
       var start_date = parseDate(el.tag('low').attr('value')),
@@ -2199,14 +1844,14 @@ CCDA.Medications = function () {
       el = entry.tag('precondition').tag('value');
       var precondition_name = el.attr('displayName'),
           precondition_code = el.attr('code'),
-          precondition_code_system = el.attr('codeSystem'),
+          precondition_code_system = el.attr('codeSystem');
       
       el = entry.template('2.16.840.1.113883.10.20.22.4.19').tag('value');
       var reason_name = el.attr('displayName'),
           reason_code = el.attr('code'),
           reason_code_system = el.attr('codeSystem');
       
-      el = entry.tag('routeCode')
+      el = entry.tag('routeCode');
       var route_name = el.attr('displayName'),
           route_code = el.attr('code'),
           route_code_system = el.attr('codeSystem'),
@@ -2230,7 +1875,7 @@ CCDA.Medications = function () {
       var prescriber_organization = el.tag('name').val(),
           prescriber_person = null;
       
-      data.push({
+      data.medications.push({
         date_range: {
           start: start_date,
           end: end_date
@@ -2287,56 +1932,15 @@ CCDA.Medications = function () {
           person: prescriber_person
         }
       });
-    }
+    });
     
-    return data;
-  };
-  
-  // Init
-  ///////////////////////////
-  
-  // Reveal public methods
-  return {
-    parse: parse
-  };
-  
-}();
-;
-
-/*
- * problems.js
- */
-
-CCDA.Problems = function () {
-  
-  // Dependancies
-  ///////////////////////////
-  var parseDate = Core.parseDate;
-  
-  // Properties
-  ///////////////////////////
-  
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
-  
-  /*
-   * Parse the problems CCDA XML section.
-   */
-  var parse = function (xmlDOM) {
-    var data = [], el, entries, entry;
     
-    el = xmlDOM.template('2.16.840.1.113883.10.20.22.2.5.1')
-    if (el.isEmpty()) {
-      el = xmlDOM.template('2.16.840.1.113883.10.20.22.2.5');
-    }
+    // Parse problems //////////////////////////////////////////////////////////
+    data.problems = [];
     
-    entries = el.elsByTag('entry');
+    var problems = ccda.section('problems');
     
-    for (var i = 0; i < entries.length; i++) {
-      entry = entries[i];
+    problems.entries().each(function(entry) {
       
       el = entry.tag('effectiveTime');
       var start_date = parseDate(el.tag('low').attr('value')),
@@ -2353,7 +1957,7 @@ CCDA.Problems = function () {
       el = entry.template('2.16.840.1.113883.10.20.22.4.31');
       var age = parseFloat(el.tag('value').attr('value'));
       
-      data.push({
+      data.problems.push({
         date_range: {
           start: start_date,
           end: end_date
@@ -2364,56 +1968,15 @@ CCDA.Problems = function () {
         code: code,
         code_system: code_system
       });
-    }
+    });
     
-    return data;
-  };
-  
-  // Init
-  ///////////////////////////
-  
-  // Reveal public methods
-  return {
-    parse: parse
-  };
-  
-}();
-;
-
-/*
- * procedures.js
- */
-
-CCDA.Procedures = function () {
-  
-  // Dependancies
-  ///////////////////////////
-  var parseDate = Core.parseDate;
-  
-  // Properties
-  ///////////////////////////
-  
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
-  
-  /*
-   * Parse the procedures CCDA XML section.
-   */
-  var parse = function (xmlDOM) {
-    var data = [], el, els, entries, entry;
     
-    el = xmlDOM.template('2.16.840.1.113883.10.20.22.2.7.1')
-    if (el.isEmpty()) {
-      el = xmlDOM.template('2.16.840.1.113883.10.20.22.2.7');
-    }
+    // Parse procedures ////////////////////////////////////////////////////////
+    data.procedures = [];
     
-    entries = el.elsByTag('entry');
+    var procedures = ccda.section('procedures');
     
-    for (var i = 0; i < entries.length; i++) {
-      entry = entries[i];
+    procedures.entries().each(function(entry) {
       
       el = entry.tag('effectiveTime');
       var date = parseDate(el.attr('value'));
@@ -2454,7 +2017,7 @@ CCDA.Procedures = function () {
           device_code = el.attr('code'),
           device_code_system = el.attr('codeSystem');
       
-      data.push({
+      data.procedures.push({
         date: date,
         name: name,
         code: code,
@@ -2479,64 +2042,25 @@ CCDA.Procedures = function () {
           code_system: device_code_system
         }
       });
-    }
+    });
     
-    return data;
-  };
-  
-  // Init
-  ///////////////////////////
-  
-  // Reveal public methods
-  return {
-    parse: parse
-  };
-  
-}();
-;
-
-/*
- * vitals.js
- */
-
-CCDA.Vitals = function () {
-  
-  // Dependancies
-  ///////////////////////////
-  var parseDate = Core.parseDate;
-  
-  // Properties
-  ///////////////////////////
-  
-  // Private Methods
-  ///////////////////////////
-  
-  // Public Methods
-  ///////////////////////////
-  
-  /*
-   * Parse the vitals CCDA XML section.
-   */
-  var parse = function (xmlDOM) {
-    var data = [], results_data, el, entries, entry, results, result;
     
-    el = xmlDOM.template('2.16.840.1.113883.10.20.22.2.4.1');
+    // Parse vitals ////////////////////////////////////////////////////////////
+    data.vitals = [];
     
-    entries = el.elsByTag('entry');
+    var vitals = ccda.section('vitals');
     
-    for (var i = 0; i < entries.length; i++) {
-      entry = entries[i];
+    vitals.entries().each(function(entry) {
       
       el = entry.tag('effectiveTime');
       var entry_date = parseDate(el.attr('value'));
       
-      results = entry.elsByTag('component');
-      results_data = [];
+      var result;
+      var results = entry.elsByTag('component');
+      var results_data = [];
       
-      for (var j = 0; j < results.length; j++) {
-        result = results[j];
-        
-        // Results
+      for (var i = 0; i < results.length; i++) {
+        result = results[i];
         
         el = result.tag('code');
         var name = el.attr('displayName'),
@@ -2558,30 +2082,30 @@ CCDA.Vitals = function () {
         });
       }
       
-      data.push({
+      data.vitals.push({
         date: entry_date,
         results: results_data
       });
-    }
+    });
     
+    // Return the parsed data
     return data;
   };
   
-  // Init
-  ///////////////////////////
   
   // Reveal public methods
   return {
-    parse: parse
+    run: run
   };
   
-}();
+})();
 ;
 
 /*
  * bluebutton.js - The public `BlueButton` object.
  */
- 
+
+/* exported BlueButton */
 var BlueButton = function (source) {
   
   // Dependancies
@@ -2596,29 +2120,25 @@ var BlueButton = function (source) {
   // Private Methods
   ///////////////////////////
   var addMethods = function (objects) {
+    var json = function () { return JSON.stringify(this, null, 2); };
+    
     for (var i = 0; i < objects.length; i++) {
-      objects[i].json = function () { return JSON.stringify(this, null, 2) };
-    };
+      objects[i].json = json;
+    }
   };
   
   // Public Methods
   ///////////////////////////
-  var doc = function () { return data.document };
-  var allergies = function () { return data.allergies };
-  var demographics = function () { return data.demographics };
-  var encounters = function () { return data.encounters };
-  var immunizations = function () { return data.immunizations };
-  var labs = function () { return data.labs };
-  var medications = function () { return data.medications };
-  var problems = function () { return data.problems };
-  var procedures = function () { return data.procedures };
-  var vitals = function (filters) {
-    if (filters) {
-      return Core.filters(data.vitals);
-    } else {
-      return data.vitals;
-    }
-  };
+  var doc = function () { return data.document; };
+  var allergies = function () { return data.allergies; };
+  var demographics = function () { return data.demographics; };
+  var encounters = function () { return data.encounters; };
+  var immunizations = function () { return data.immunizations; };
+  var labs = function () { return data.labs; };
+  var medications = function () { return data.medications; };
+  var problems = function () { return data.problems; };
+  var procedures = function () { return data.procedures; };
+  var vitals = function () { return data.vitals; };
   
   // Init
   ///////////////////////////
@@ -2627,8 +2147,8 @@ var BlueButton = function (source) {
   source = source.replace(/^\s+|\s+$/g,'');
   
   // Detect document type
-  if (source.substr(0, 5) == "<?xml") {
-    xmlDOM = XML.parseXML(source);
+  if (source.substr(0, 5) === "<?xml") {
+    xmlDOM = XML.parse(source);
     
     if (!xmlDOM.template('2.16.840.1.113883.3.88.11.32.1').isEmpty()) {
       type = "c32";
@@ -2639,40 +2159,26 @@ var BlueButton = function (source) {
     type = "json";
   }
   
-  data.document = { type: type };
-  
   switch (type) {
     case "c32":
-      data.allergies =     C32.Allergies.parse(xmlDOM);
-      data.demographics =  C32.Demographics.parse(xmlDOM);
-      data.encounters =    C32.Encounters.parse(xmlDOM);
-      data.immunizations = C32.Immunizations.parse(xmlDOM);
-      data.labs =          C32.Labs.parse(xmlDOM);
-      data.medications =   C32.Medications.parse(xmlDOM);
-      data.problems =      C32.Problems.parse(xmlDOM);
-      data.procedures =    C32.Procedures.parse(xmlDOM);
-      data.vitals =        C32.Vitals.parse(xmlDOM);
+      data = Parsers.C32.run(xmlDOM);
       break;
     case "ccda":
-      data.allergies =     CCDA.Allergies.parse(xmlDOM);
-      data.demographics =  CCDA.Demographics.parse(xmlDOM);
-      data.encounters =    CCDA.Encounters.parse(xmlDOM);
-      data.immunizations = CCDA.Immunizations.parse(xmlDOM);
-      data.labs =          CCDA.Labs.parse(xmlDOM);
-      data.medications =   CCDA.Medications.parse(xmlDOM);
-      data.problems =      CCDA.Problems.parse(xmlDOM);
-      data.procedures =    CCDA.Procedures.parse(xmlDOM);
-      data.vitals =        CCDA.Vitals.parse(xmlDOM);
+      data = Parsers.CCDA.run(xmlDOM);
       break;
     case "json":
+      var json;
       try {
-        var json = JSON.parse(source);
+        json = JSON.parse(source);
       } catch (e) {
         console.log("BB Exception: Could not parse JSON");
       }
       console.log("BB Error: Blue Button JSON not yet implemented.");
+      console.log(json);
       break;
   }
+  
+  data.document = { type: type };
   
   addMethods([
     data,
